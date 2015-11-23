@@ -10,6 +10,7 @@ import com.jetyun.newswire.textminer.analyzer.SparkMmseg
 import com.jetyun.newswire.textminer.tfidf.TfidfModel
 import com.jetyun.newswire.textminer.tfidf.WordTf
 
+
 /**
  * @author 杨勇
  * 采用tfidf的方式抽取特征向量
