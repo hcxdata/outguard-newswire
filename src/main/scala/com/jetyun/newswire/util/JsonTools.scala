@@ -23,7 +23,7 @@ object JsonTools {
    }
    
    def main(args: Array[String]): Unit = {
-     val page1 = new HttpPage(1l,"title:String","content:String",1l,"keyword:String","url:String")
+     val page1 = new HttpPage(1,"title:String","content:String",1l,"keyword:String","url:String")
      val json = JsonTools.writeObjectToJson(page1)
      println(json)
      val page :HttpPage= JsonTools.readObjectFromJson(json, classOf[HttpPage]).asInstanceOf[HttpPage]
