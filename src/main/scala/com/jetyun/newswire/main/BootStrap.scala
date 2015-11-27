@@ -1,7 +1,7 @@
 package com.jetyun.newswire.main
 
 /**
- * @author Administrator
+ * @author 杨勇
  */
 object BootStrap {
   

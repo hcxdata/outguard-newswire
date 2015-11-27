@@ -4,7 +4,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.regression.LabeledPoint
 
 /**
- * @author Administrator
+ * @author 杨勇
  */
 object SortingDriver {
   def sort(data: RDD[(Int, Array[Double])]): RDD[(Int, Double)] = {

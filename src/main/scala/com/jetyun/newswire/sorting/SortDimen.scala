@@ -1,7 +1,7 @@
 package com.jetyun.newswire.sorting
 
 /**
- * @author Administrator
+ * @author 杨勇
  */
 object SortDimen {
   //
