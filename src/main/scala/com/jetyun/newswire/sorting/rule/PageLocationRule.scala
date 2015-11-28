@@ -7,6 +7,6 @@ import com.jetyun.newswire.sorting.HttpPage
  */
 object PageLocationRule extends Serializable with Page2VectorFunction{
   def weight(page:HttpPage):Double={
-    0.0
+    1.0
   }
 }
