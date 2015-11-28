@@ -30,6 +30,8 @@ libraryDependencies ++=
          "com.thoughtworks.xstream" % "xstream" % xstream_version,
          "com.chenlb.mmseg4j" % "mmseg4j-solr" % mmseg_solr_version,
          //"org.apache.solr" % "solr-core" % solr_version,
-         "org.apache.lucene" % "lucene-core" % solr_version
+         "org.apache.lucene" % "lucene-core" % solr_version,
+         "commons-codec" % "commons-codec" % "1.10",
+         "mysql" % "mysql-connector-java" % "5.1.27"
          )
 }
