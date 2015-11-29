@@ -12,7 +12,7 @@ import java.io.File
 object data {
   def main(args: Array[String]): Unit = {
     val conn = DBConnection.connection
-    val sql = "select * from webpage_1w where text is not null limit 1000"
+    val sql = "select * from webpage_1w where text is not null "
     val stmt = conn.createStatement()
     val rs = stmt.executeQuery(sql)
     val file = "E:\\data\\spark\\httppages\\pages.data"

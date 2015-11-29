@@ -21,7 +21,7 @@ object FeatureExactorTest extends TestBase {
     var index = 0
     val srcData = data.map { x =>
       index = index + 1
-      Article(index, "", "", x)
+      Article(index,"", "", "", x)
     }
     val features = exactor.exact(srcData).collect()
     for (f <- features) {
