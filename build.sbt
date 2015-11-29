@@ -17,6 +17,7 @@ libraryDependencies ++=
      val xstream_version = "1.4.8"
      val mmseg_solr_version = "2.3.0"
      val solr_version = "5.0.0"
+     val hbase_version="0.98.16.1-hadoop2"
      Seq(
          "org.apache.spark" %% "spark-core" % spark_version,
          "org.apache.spark" %% "spark-sql" % spark_version,
@@ -32,6 +33,9 @@ libraryDependencies ++=
          //"org.apache.solr" % "solr-core" % solr_version,
          "org.apache.lucene" % "lucene-core" % solr_version,
          "commons-codec" % "commons-codec" % "1.10",
-         "mysql" % "mysql-connector-java" % "5.1.27"
+         "mysql" % "mysql-connector-java" % "5.1.27",
+         "org.apache.hbase" % "hbase-common" % hbase_version,
+         "org.apache.hbase" % "hbase-client" % hbase_version,
+         "org.apache.hbase" % "hbase-server" % hbase_version
          )
 }
