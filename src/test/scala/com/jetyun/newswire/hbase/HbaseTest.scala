@@ -15,13 +15,14 @@ object HbaseTest extends TestBase {
   def main(args: Array[String]): Unit = {
     val conf = HBaseConfiguration.create()
     conf.set("hbase.zookeeper.property.clientPort", "2181")
-    conf.set("hbase.zookeeper.quorum", "master")
+    conf.set("hbase.zookeeper.quorum", args(0))
 
     //设置查询的表名
-    conf.set(TableInputFormat.INPUT_TABLE, "user")
+    conf.set(TableInputFormat.INPUT_TABLE, args(1))
     val hbaseData = sc.newAPIHadoopRDD(conf, classOf[TableInputFormat],
       classOf[org.apache.hadoop.hbase.io.ImmutableBytesWritable],
-      classOf[org.apache.hadoop.hbase.client.Result])
-
+      classOf[org.apache.hadoop.hbase.client.Result]).collect()
+    println("------------------------------------")
+    hbaseData.foreach(println _)
   }
 }
