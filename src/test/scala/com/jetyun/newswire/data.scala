@@ -17,7 +17,7 @@ object data {
     val rs = stmt.executeQuery(sql)
     val file = "E:\\data\\spark\\httppages\\pages.data"
     while (rs.next()) {
-      val page = (HttpPage(rs.getString("id").hashCode(), rs.getString("id"), rs.getString("title"), rs.getString("text"), rs.getLong("fetchTime"), rs.getString("title"), rs.getString("baseUrl")))
+      val page = (HttpPage(rs.getString("id").hashCode(), rs.getString("id"), rs.getString("title"), rs.getString("text"), rs.getLong("fetchTime")+"", rs.getString("title"), rs.getString("baseUrl")))
       FileUtils.writeStringToFile(new File(file), JsonTools.writeObjectToJson(page)+"\n", "utf-8", true)
     }
 
