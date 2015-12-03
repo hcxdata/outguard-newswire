@@ -16,38 +16,27 @@ import org.apache.hadoop.hbase.util.Bytes
 import org.apache.spark.rdd.RDD
 import org.apache.hadoop.hbase.client.Result
 import org.apache.hadoop.hbase.client.Put
+import com.jetyun.newswire.dataface.fetch.ReadDataFromMysql
 
 /**
  * @author 杨勇
  */
 object BootStrap {
 
-  private def fetchPage(sc: SparkContext): RDD[HttpPage] = {
-    val conf = HBaseConfiguration.create()
-    conf.set("hbase.zookeeper.property.clientPort", "2181")
-    conf.set("hbase.zookeeper.quorum", "ubuntu3,ubuntu1,ubuntu2")
-    conf.set("hbase.master", "ubuntu1:60000")
-    val tableName = ""
-    val scan = new Scan
-    scan.setStartRow("".getBytes)
-    scan.setStopRow("".getBytes)
-    val hbaseData = ReadDataFromHBase.fetchDataFromHBase(sc, conf, tableName, scan)
-    val pages = hbaseData.map(kv => {
-      val rowKey = kv._1
-      val result = kv._2
-      result2Page(result)
-    })
-    pages
+  private def fetchPage(sc: SparkContext,low:Long,up:Long): RDD[HttpPage] = {
+    val sql = "select * from webpage_1w where fetchTime>? and fetchTime<?"
+    val data = ReadDataFromMysql.fetchDataFromMysql(sc, sql, low, up, 5)
+    data
   }
 
-  private def result2Page(result: Result): HttpPage = {
-    HttpPage(1, "", "", "", 1l, "", "")
-  }
-
-  private def page2Result(page: HttpPage): Put = {
-    val put = new Put("".getBytes)
-    put
-  }
+//  private def result2Page(result: Result): HttpPage = {
+//    HttpPage(1, "", "", "", 1l, "", "")
+//  }
+//
+//  private def page2Result(page: HttpPage): Put = {
+//    val put = new Put("".getBytes)
+//    put
+//  }
 
   private def sorting(pages: RDD[HttpPage]): RDD[(Int, String, Double)] = {
     val vectorFunction = Array[Page2VectorFunction](UrlWeightRule, PublishTimeRule, PageLocationRule)
@@ -58,12 +47,14 @@ object BootStrap {
   }
 
   private def updateWeights(weights:RDD[(Int, String, Double)])={
-    
+    weights.mapPartitions(f, preservesPartitioning)
   }
   
   def main(args: Array[String]): Unit = {
     val sc = new SparkContext(args(0), "pageRank_" + System.currentTimeMillis())
-    val pages = fetchPage(sc)
+    val low = 1408417323191l
+    val up = 1408570903597l
+    val pages = fetchPage(sc,low,up)
     val sortResult = sorting(pages)
     updateWeights(sortResult)
     sortResult.foreach(println _)
