@@ -8,7 +8,8 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
  
 resolvers ++= Seq("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
                   "Maven Repository" at "http://repo1.maven.org/maven2/",
-                  "maven-restlet" at "http://maven.restlet.org")
+                  "maven-restlet" at "http://maven.restlet.org",
+                  "Coda Hale's Repository" at "http://repo.codahale.com/")
  
 libraryDependencies ++=
 {
