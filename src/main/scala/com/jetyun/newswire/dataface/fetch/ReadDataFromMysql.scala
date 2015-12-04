@@ -26,13 +26,18 @@ object ReadDataFromMysql {
   }
 
   private def extractValues(rs: ResultSet): HttpPage = {
-//    val json = rs.getString("json").replaceAll("-", "")
-//    println("-------------id=="+rs.getInt("id"))
-//    val map: HashMap[String, Any] = JsonTools.readObjectFromJson(json, classOf[HashMap[String, Any]]).asInstanceOf[HashMap[String, Any]]
-//    var publishtime = "0"
-//    if (map.containsKey("publish_time")) {
-//      publishtime = map.get("publish_time").toString()
-//    }
+    val json = rs.getString("json").replaceAll("-", "")
+    var publishtime = "0"
+    try {
+      val map: HashMap[String, Any] = JsonTools.readObjectFromJson(json, classOf[HashMap[String, Any]]).asInstanceOf[HashMap[String, Any]]
+      if (map.containsKey("publish_time")) {
+        publishtime = map.get("publish_time").toString()
+      }
+    } catch {
+      case e: Exception =>
+        publishtime = "0"
+        println("parse json error id=[" + rs.getInt("id") + "]")
+    }
     HttpPage(rs.getInt("id"), rs.getInt("id") + "", "title", "text", "0", "title", rs.getString("url"))
   }
 }
