@@ -15,6 +15,12 @@ object Page2VectorDriver {
       val vector = array.map(f => f(page))
       (page.id, page.publishTime, vector)
     }
+    weights.foreach(f=>{
+      val id = f._1
+      val time = f._2
+      val w = f._3(0)+","+f._3(1)+","+f._3(2)
+      println("id=["+id+"],time=["+time+"],weight=["+w+"]")
+    })
     weights
   }
 }

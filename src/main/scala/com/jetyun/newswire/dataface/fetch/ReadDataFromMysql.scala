@@ -10,11 +10,15 @@ import com.jetyun.newswire.config.DBConfig
 import com.jetyun.newswire.sorting.HttpPage
 import com.jetyun.newswire.util.JsonTools
 import java.util.HashMap
+import java.util.regex.Pattern
 
 /**
  * @author dell
  */
 object ReadDataFromMysql {
+  
+  val timePattern = Pattern.compile("")
+  
   def fetchDataFromMysql(sc: SparkContext, sql: String, low: Long, up: Long, partitation: Int): RDD[HttpPage] = {
     val data = new JdbcRDD(sc, createConnection, sql, low, up, partitation, extractValues)
     data
@@ -36,7 +40,7 @@ object ReadDataFromMysql {
     } catch {
       case e: Exception =>
         publishtime = "0"
-        println("parse json error id=[" + rs.getInt("id") + "]")
+        println("parse json error id=[" + rs.getInt("id") + "],message=["+e.getStackTrace.mkString("\n")+"]")
     }
     HttpPage(rs.getInt("id"), rs.getInt("id") + "", "title", "text", "0", "title", rs.getString("url"))
   }
