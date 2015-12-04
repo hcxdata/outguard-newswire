@@ -2,7 +2,7 @@ name := "outguard-newswire"
  
 version := "1.0"
  
-scalaVersion := "2.11.6"
+scalaVersion := "2.10.6"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
  
@@ -20,13 +20,13 @@ libraryDependencies ++=
      val solr_version = "5.0.0"
      val hbase_version="0.98.16.1-hadoop2"
      Seq(
-         "org.apache.spark" %% "spark-core" % spark_version,
-         //"org.apache.spark" %% "spark-sql" % spark_version,
-         //"org.apache.spark" %% "spark-streaming" % spark_version,
-         "org.apache.spark" %% "spark-mllib" % spark_version,
-         //"org.apache.spark" %% "spark-hive" % spark_version,
-         //"org.apache.spark" %% "spark-yarn" % spark_version,
-         //"org.apache.spark" %% "spark-repl" % spark_version,
+         "org.apache.spark" %% "spark-core" % spark_version% "provided",
+         //"org.apache.spark" %% "spark-sql" % spark_version% "provided",
+         //"org.apache.spark" %% "spark-streaming" % spark_version% "provided",
+         "org.apache.spark" %% "spark-mllib" % spark_version% "provided",
+         //"org.apache.spark" %% "spark-hive" % spark_version% "provided",
+         //"org.apache.spark" %% "spark-yarn" % spark_version% "provided",
+         //"org.apache.spark" %% "spark-repl" % spark_version% "provided",
          "org.apache.httpcomponents" % "httpclient" % httpclient_version,
          "org.apache.httpcomponents" % "httpcore" % httpclient_version,
          //"com.thoughtworks.xstream" % "xstream" % xstream_version,
@@ -39,4 +39,14 @@ libraryDependencies ++=
          "org.apache.hbase" % "hbase-client" % hbase_version,
          "org.apache.hbase" % "hbase-server" % hbase_version
          )
+}
+
+assemblyMergeStrategy in assembly := {
+  case PathList("javax", "servlet", xs @ _*)         => MergeStrategy.first
+  case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
+  case "application.conf"                            => MergeStrategy.concat
+  case "unwanted.txt"                                => MergeStrategy.discard
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
 }
