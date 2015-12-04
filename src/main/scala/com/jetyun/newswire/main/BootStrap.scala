@@ -25,7 +25,7 @@ import com.jetyun.newswire.rdbms.DBConnection
 object BootStrap {
 
   private def fetchPage(sc: SparkContext, low: Long, up: Long, limit: Int): RDD[HttpPage] = {
-    val sql = "select * from webpage_metadata_parser_bak where 100>? and 100>? order by updated_at desc limit " + limit
+    val sql = "select * from webpage_metadata_parser where 100>? and 100>? order by updated_at desc limit " + limit
     val data = ReadDataFromMysql.fetchDataFromMysql(sc, sql, low, up, 3)
     data
   }
@@ -84,7 +84,7 @@ object BootStrap {
     val sc = new SparkContext(args(0), "pageRank_" + System.currentTimeMillis())
     val low = 0
     val up = 0
-    val pages = fetchPage(sc, low, up, 1000)
+    val pages = fetchPage(sc, low, up, args(1).toInt)
     val sortResult = sorting(pages)
     updateWeights(sortResult)
   }
