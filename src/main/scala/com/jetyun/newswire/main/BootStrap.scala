@@ -55,22 +55,29 @@ object BootStrap {
     val conn = DBConnection.getConnection
     val selectSql = "select page_id from page_rank where page_id = ? "
     val stmt = conn.prepareStatement(selectSql)
-    val updateSql = "update page_rank set weight = ? where page_id = ?"
+    val updateSql = "update page_rank set weight = ?,publishtime=? where page_id = ?"
     val updatestmt = conn.prepareStatement(updateSql)
     val insertSql = "insert into page_rank(page_id,weight,publishtime) values(?,?,?)"
     val insertstmt = conn.prepareStatement(insertSql)
     val result = weights.map(x => {
+      try{
       stmt.setInt(1, x._1)
       val rs = stmt.executeQuery()
       if(rs.next()){
          updatestmt.setDouble(1, x._3)
-         updatestmt.setInt(2, x._1)
+         updatestmt.setString(2, x._2)
+         updatestmt.setInt(3, x._1)
+         
          updatestmt.executeUpdate()
       }else{
          insertstmt.setInt(1, x._1)
          insertstmt.setDouble(2, x._3)
          insertstmt.setString(3, x._2)
          insertstmt.executeUpdate()
+      }
+      } catch {
+        case e: Exception => e.printStackTrace()
+        1
       }
     })
 //    stmt.close()
