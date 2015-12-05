@@ -11,7 +11,6 @@ import scala.io.Source
  */
 object HdfsFileTools {
   private val conf = new Configuration
-  conf.set("", "")
   
   private val fs = FileSystem.get(conf)
   

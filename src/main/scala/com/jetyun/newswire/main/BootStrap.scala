@@ -18,6 +18,10 @@ import org.apache.hadoop.hbase.client.Result
 import org.apache.hadoop.hbase.client.Put
 import com.jetyun.newswire.dataface.fetch.ReadDataFromMysql
 import com.jetyun.newswire.rdbms.DBConnection
+import com.jetyun.newswire.textminer.featurexact.TfidfFeatureExactor
+import com.jetyun.newswire.textminer.featurexact.Article
+import com.jetyun.newswire.textminer.tfidf.TfidfModel
+import org.apache.spark.mllib.regression.LabeledPoint
 
 /**
  * @author 杨勇
@@ -42,8 +46,8 @@ object BootStrap {
   private def sorting(pages: RDD[HttpPage]): RDD[(Int, String, Double)] = {
     val vectorFunction = Array[(HttpPage) => Double](UrlWeightRule.weight, PublishTimeRule.weight, PageLocationRule.weight)
     val sortData = Page2VectorDriver.page2Vector(pages, vectorFunction)
-    val randomData = sortData.randomSplit(Array[Double](0.9, 0.1), 11l)(0)
-    val result = SortingDriver.sort(randomData)
+    //val randomData = sortData.randomSplit(Array[Double](0.9, 0.1), 11l)(0)
+    val result = SortingDriver.sort(sortData)
     result
   }
 
@@ -55,44 +59,90 @@ object BootStrap {
     val conn = DBConnection.getConnection
     val selectSql = "select page_id from page_rank where page_id = ? "
     val stmt = conn.prepareStatement(selectSql)
-    val updateSql = "update page_rank set weight = ?,publishtime=? where page_id = ?"
+    val updateSql = "update page_rank set weight = ? where page_id = ?"
     val updatestmt = conn.prepareStatement(updateSql)
     val insertSql = "insert into page_rank(page_id,weight,publishtime) values(?,?,?)"
     val insertstmt = conn.prepareStatement(insertSql)
     val result = weights.map(x => {
-      try{
       stmt.setInt(1, x._1)
       val rs = stmt.executeQuery()
-      if(rs.next()){
-         updatestmt.setDouble(1, x._3)
-         updatestmt.setString(2, x._2)
-         updatestmt.setInt(3, x._1)
-         
-         updatestmt.executeUpdate()
-      }else{
-         insertstmt.setInt(1, x._1)
-         insertstmt.setDouble(2, x._3)
-         insertstmt.setString(3, x._2)
-         insertstmt.executeUpdate()
-      }
-      } catch {
-        case e: Exception => e.printStackTrace()
-        1
+      if (rs.next()) {
+        updatestmt.setDouble(1, x._3)
+        updatestmt.setInt(2, x._1)
+        updatestmt.executeUpdate()
+      } else {
+        insertstmt.setInt(1, x._1)
+        insertstmt.setDouble(2, x._3)
+        insertstmt.setString(3, x._2)
+        insertstmt.executeUpdate()
       }
     })
-//    stmt.close()
-//    insertstmt.close()
-//    updatestmt.close()
-//    conn.close()
+    //    stmt.close()
+    //    insertstmt.close()
+    //    updatestmt.close()
+    //    conn.close()
+    result
+  }
+
+  private def fetchFeatures(pages: RDD[HttpPage], featureExactor: TfidfFeatureExactor): RDD[LabeledPoint] = {
+    val articles = pages.map { page => Article(page.id * 1.0, "", page.title, page.keyword, page.content) }
+    val features = featureExactor.exact(articles)
+    features
+  }
+
+  private def fetchKeyWords(featureExactor: TfidfFeatureExactor, features: RDD[LabeledPoint], topn: Int = 10): RDD[(Int, String)] = {
+    val result = features.map { feature =>
+      (feature.label.toInt, featureExactor.topFeatures(feature, topn))
+    }
+    result
+  }
+
+  private def saveOrUpdateKeyWords(keywords: Array[(Int, String)]): Array[Int] = {
+    val conn = DBConnection.getConnection
+    val selectSql = "select page_id from page_keywords where page_id = ? "
+    val stmt = conn.prepareStatement(selectSql)
+    val updateSql = "update page_keywords set keywords = ? where page_id = ?"
+    val updatestmt = conn.prepareStatement(updateSql)
+    val insertSql = "insert into page_keywords(page_id,keywords) values(?,?)"
+    val insertstmt = conn.prepareStatement(insertSql)
+    val result = keywords.map(x => {
+      stmt.setInt(1, x._1)
+      try {
+        val rs = stmt.executeQuery()
+        if (rs.next()) {
+          updatestmt.setString(1, x._2)
+          updatestmt.setInt(2, x._1)
+          updatestmt.executeUpdate()
+        } else {
+          insertstmt.setInt(1, x._1)
+          insertstmt.setString(2, x._2)
+          insertstmt.executeUpdate()
+        }
+      } catch {
+        case e: Exception =>
+          e.printStackTrace()
+          1
+      }
+    })
+    //    stmt.close()
+    //    insertstmt.close()
+    //    updatestmt.close()
+    //    conn.close()
     result
   }
 
   def main(args: Array[String]): Unit = {
     val sc = new SparkContext(args(0), "pageRank_" + System.currentTimeMillis())
+    val tfidfModel = new TfidfModel
+    tfidfModel.loadModel(args(2))
     val low = 0
     val up = 0
-    val pages = fetchPage(sc, low, up, args(1).toInt)
+    val pages = fetchPage(sc, low, up, args(1).toInt).cache()
     val sortResult = sorting(pages)
     updateWeights(sortResult)
+    val featureExactor = new TfidfFeatureExactor(tfidfModel)
+    val features = fetchFeatures(pages, featureExactor)
+    val keywords = fetchKeyWords(featureExactor, features, 10).collect()
+    saveOrUpdateKeyWords(keywords)
   }
 }
