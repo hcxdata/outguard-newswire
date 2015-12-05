@@ -22,6 +22,7 @@ import com.jetyun.newswire.textminer.featurexact.TfidfFeatureExactor
 import com.jetyun.newswire.textminer.featurexact.Article
 import com.jetyun.newswire.textminer.tfidf.TfidfModel
 import org.apache.spark.mllib.regression.LabeledPoint
+import com.jetyun.newswire.deduplication.DeduplicationDriver
 
 /**
  * @author 杨勇
@@ -142,7 +143,8 @@ object BootStrap {
     updateWeights(sortResult)
     val featureExactor = new TfidfFeatureExactor(tfidfModel)
     val features = fetchFeatures(pages, featureExactor)
-    val keywords = fetchKeyWords(featureExactor, features, 10).collect()
-    saveOrUpdateKeyWords(keywords)
+    val keywords = fetchKeyWords(featureExactor, features, 10)
+    val quchongs = DeduplicationDriver.duplicate(keywords).collect()
+    saveOrUpdateKeyWords(quchongs)
   }
 }
