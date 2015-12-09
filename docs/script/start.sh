@@ -3,3 +3,6 @@ spark-submit --jars /opt/apps/page_rank/libs/mysql-connector-java-5.1.17.jar  --
 mysqldump -B outguard_crawler --ignore-table=outguard_crawler.webpage -h rds5hhm9neufn4xn2mix.mysql.rds.aliyuncs.com -ucrawler -pR5mTSEUJLZtwLbGf -r db1.sql
 
 mysql -h rds5hhm9neufn4xn2mix.mysql.rds.aliyuncs.com -ucrawler -pR5mTSEUJLZtwLbGf 
+
+
+mysqldump -h rds5hhm9neufn4xn2mix.mysql.rds.aliyuncs.com -ucrawler -pR5mTSEUJLZtwLbGf outguard_crawler webpage_metadata_parser > db1.sql

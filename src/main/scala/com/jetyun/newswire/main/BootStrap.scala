@@ -30,7 +30,7 @@ import com.jetyun.newswire.deduplication.DeduplicationDriver
 object BootStrap {
 
   private def fetchPage(sc: SparkContext, low: Long, up: Long, limit: Int): RDD[HttpPage] = {
-    val sql = "select * from webpage_metadata_parser where 100>? and 100>? order by updated_at desc limit " + limit
+    val sql = "select * from webpage_metadata_parser where 100>? and 100>?  order by updated_at desc limit " + limit
     val data = ReadDataFromMysql.fetchDataFromMysql(sc, sql, low, up, 3)
     data
   }

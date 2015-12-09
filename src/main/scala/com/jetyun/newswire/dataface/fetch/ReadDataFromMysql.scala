@@ -12,6 +12,7 @@ import com.jetyun.newswire.util.JsonTools
 import java.util.HashMap
 import java.util.regex.Pattern
 import com.jetyun.newswire.java.util.JJsonTools
+import org.apache.commons.lang.StringUtils
 
 /**
  * @author dell
@@ -47,13 +48,19 @@ object ReadDataFromMysql {
 //      if (map.containsKey("mainnewscontent")) {
 //        context = map.get("mainnewscontent").toString()
 //      }
-      if (map.containsKey("bodynewscontent")) {
-        context = map.get("bodynewscontent").toString()
+      if (map.containsKey("mainnewscontent")) {
+        context = map.get("mainnewscontent").toString()
+      }
+      
+      if(StringUtils.isBlank(context.trim())){
+        if(map.containsKey("bodynewscontent")){
+          context = map.get("bodynewscontent").toString()
+        }
       }
       if (map.containsKey("keywords")) {
         keywords = map.get("keywords").toString()
       }
-
+    
     } catch {
       case e: Exception =>
         publishtime = "0"
