@@ -38,7 +38,6 @@ public class JJsonTools {
 		while(rs.next()){
 			map = JJsonTools.getObjectFromJson(rs.getString("json"), Map.class);
 		}
-		
 		System.out.println(map.get("publish_time"));
 	}
 }
