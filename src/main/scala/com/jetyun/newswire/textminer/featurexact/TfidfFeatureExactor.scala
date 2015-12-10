@@ -1,15 +1,13 @@
 package com.jetyun.newswire.textminer.featurexact
 
 import scala.collection.mutable.HashMap
-
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
-
 import com.jetyun.newswire.textminer.analyzer.SparkMmseg
 import com.jetyun.newswire.textminer.tfidf.TfidfModel
 import com.jetyun.newswire.textminer.tfidf.WordTf
-
+import org.apache.commons.lang.StringUtils
 
 /**
  * @author 杨勇
@@ -20,7 +18,7 @@ class TfidfFeatureExactor(model: TfidfModel) extends Serializable {
     val sparkMmseg = new SparkMmseg
     //这里需要考虑标题,关键字,内容的权重,参考下孙健的实现
     val features = articles.map { article =>
-      val words = sparkMmseg.seg(article.content, ",").split(",").filter { x => x.matches("[\\u4e00-\\u9fa5]*")&&x.length()>1 }
+      val words = sparkMmseg.seg(article.content, ",").split(",").filter { x => x.matches("[\\u4e00-\\u9fa5]*") && x.length() > 1 }
       val map = new HashMap[String, Double]
       words.foreach(w => {
         if (map.contains(w)) {
@@ -33,13 +31,12 @@ class TfidfFeatureExactor(model: TfidfModel) extends Serializable {
       val map2 = temp.map(w => (w._1.hashCode(), model.predict(WordTf(w._1, w._2)))).sortBy(-_._2)
       val indexs = map2.map(_._1)
       val values = map2.map(_._2)
-      // map.foreach(x=>println("article_id="+article.id+":"+x) )
       val vector = Vectors.sparse(map.size, indexs, values)
       LabeledPoint(article.id, vector)
     }
     features
   }
-
+  
   def printFeature(point: LabeledPoint): String = {
     val label = point.label
     val size = point.features.size
@@ -51,6 +48,26 @@ class TfidfFeatureExactor(model: TfidfModel) extends Serializable {
       buffer.append("" + model.index(indexs(i)) + ":" + values(i) + ",")
     }
     buffer.append("]")
+    buffer.toString()
+  }
+
+  def topFeatures(point: LabeledPoint, topn: Int = 10): String = {
+    val label = point.label
+    val size = point.features.size
+    val indexs = point.features.toSparse.indices
+    val values = point.features.toSparse.values
+    val buffer = new StringBuilder
+//    buffer.append("label=" + label + " feature=[")
+    if (topn > size) {
+        for (i <- 0 until size) {
+        buffer.append("" + model.index(indexs(i)) /**+ ":" + values(i)**/ + ",")
+      }
+    } else {
+      for (i <- 0 until topn) {
+        buffer.append("" + model.index(indexs(i)) /**+ ":" + values(i) **/+ ",")
+      }
+    }
+   // buffer.append("]")
     buffer.toString()
   }
 }
