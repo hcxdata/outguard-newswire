@@ -37,12 +37,12 @@ object UrlWeightRule extends Serializable with Page2VectorFunction {
   }
 
   def matchByIterator(page: HttpPage): Double = {
-    for (domain <- urlConfig) {
-      if (page.url.contains(domain._1)) {
-        return domain._2
-      }
+    val weights = urlConfig.filter(f=>page.url.contains(f._1))
+    if(weights==null||weights.size==0){
+      0.0
+    }else{
+      weights .maxBy(f=>f._1.length)._2
     }
-    urlConfig.get("Unknow").get
   }
 
   def matchBySubDomain(page: HttpPage): Double = {

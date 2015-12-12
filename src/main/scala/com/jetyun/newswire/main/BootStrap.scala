@@ -3,6 +3,7 @@ package com.jetyun.newswire.main
 import com.jetyun.newswire.sorting.rule.Page2VectorFunction
 import com.jetyun.newswire.sorting.rule.UrlWeightRule
 import com.jetyun.newswire.sorting.rule.PageLocationRule
+import org.apache.commons.lang.StringUtils
 import org.apache.spark.SparkContext
 import com.jetyun.newswire.sorting.Page2VectorDriver
 import com.jetyun.newswire.sorting.SortingDriver
@@ -33,7 +34,8 @@ object BootStrap {
   private def fetchPage (sc: SparkContext, low: Long, up: Long, limit: Int): RDD[HttpPage] = {
     val sql = "select * from webpage_metadata_parser where 100>? and 100>?  order by updated_at desc limit " + limit
     val data = ReadDataFromMysql.fetchDataFromMysql(sc, sql, low, up, 3)
-    data
+    val realData = data.filter(x=>(!StringUtils.isBlank(x.content)))
+    realData
   }
 
   //  private def result2Page(result: Result): HttpPage = {
