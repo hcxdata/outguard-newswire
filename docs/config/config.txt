@@ -1,0 +1,7 @@
+李祥辉  9:58:24
+数据库 地址 wxoa.bigbata.com 端口 3306 用户名 crawler 密码 R5mTSEUJLZtwLbGf 数据库名称 outguard_crawler
+
+李祥辉  11:12:40
+地址：dyn.bigbata.com
+用户名：root
+密码：W^ehX1DfZ0Wo2snd
